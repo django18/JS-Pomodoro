@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+  <meta charset="UTF-8">
+  <title>Pomodoro Clock</title>
+  
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+
+  <link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css'>
+<link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.css'>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<style>
+      /* NOTE: The styles were added inline because Prefixfree needs access to your styles and they must be inlined if they are on local disk! */
+        #clock {
+    border: 5px solid #cfd8dc;
+    border-radius: 150px;
+    width: 300px;
+    height: 300px;
+    margin: 10px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #clock #clock-time {
+    left: 50%;
+  }
+
+  .time-up{
+    background-color: rgb(218, 91, 91);
+    color: white;
+  }
+
+  .breakTime h1,.sessionTime h1{
+    padding: 0px 30px;
+    font-size: 100px;
+    color:#cfd8dc;
+  }
+
+  .timeHeader{
+    font-size: 30px;
+    font-weight: bolder;
+    padding-left: 20px;
+    margin-bottom:-30px;
+  }
+
+  .timeHeaderSession{
+    padding-left: 85px;
+  }
+
+  .btn-floating{
+    border: 1px solid #cfd8dc;
+  }
+
+  #wrapper{
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    z-index: -1;
+  }
+
+  .toast{
+    background-color:#eceff1;
+    color: #263238; 
+  }
+</style>
+
+</head>
+
+<body ng-app="pomodoro" ng-class="[ 'blue-grey', 'darken-3']">
+
+  <div class="container" ng-controller="clockController">
+      <div class="row">
+          <div class="s12 center-align">
+           <h2 class="white-text">Pomodoro-Clock</h2>
+      </div>
+  </div>
+  
+  <div class="row">
+      <div class="col s6 m6 center-align">
+          <p class="timeHeader blue-grey-text lighten-5">Break Length</p>
+          <div class = "col s12 offset-m4 m8 valign-wrapper breakTime">              
+              <a class="btn-floating btn-small waves-effect waves-light  blue-grey darken-4 left" ng-click="decreaseBreakLength()"><i class="material-icons">keyboard_arrow_down</i></a>
+              <h1> {{breakLength}}</h1>
+              <a class="btn-floating btn-small waves-effect waves-light  blue-grey darken-4 right" ng-click="increaseBreakLength()"><i class="material-icons">keyboard_arrow_up</i></a>
+          </div>
+      </div>
+      <div class="col s6 center-align">
+        <p class="timeHeader timeHeaderSession blue-grey-text lighten-5">Session Length</p>
+      <div class = "col s12 offset-m4 m8 valign-wrapper sessionTime">
+          <a class="btn-floating btn-small waves-effect waves-light  blue-grey darken-4 left" ng-click="decreaseSessionLength()"><i class="material-icons">keyboard_arrow_down</i></a>
+          <h1> {{sessionLength}} </h1>
+          <a class="btn-floating btn-small waves-effect waves-light  blue-grey darken-4 right" ng-click="increaseSessionLength()"><i class="material-icons">keyboard_arrow_up</i></a>
+        </div>
+      </div>
+  </div>
+  <div class="row">
+    <div class="s12 center-align">
+      <h5 class="blue-grey-text" >Agenda</h5>
+      <h3 class="white-text" ng-if="working">{{taskName}}</h3>
+      <h3 class="white-text" ng-if="!working">{{breakStr}}</h3>
+    </div>
+  </div>
+  <div class="row">
+    <div class="s12 center-align">
+      <div id="clock" ng-click="startStopFlag?stopClock():startClock()" ng-class="{'red':timeUp,'lighten-8':timeUp,'white-text':timeUp}" class="card center-align waves-effect waves-purple blue-grey darken-4">
+        <h1 id="clock-time" class=" white-text" ng-model="minutes">{{minutes}}</h1>
+        <h3 id="clock-time" class=" blue-grey-text" ng-model="seconds">{{seconds}}</h3>
+        <span id="wrapper" ng-style="{'height':fillHeight,'background':fillColor}"></span>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="s12 center-align">
+      <a class="waves-effect waves-light btn" ng-click="startClock()"><i class="material-icons left" >alarm_on</i>Start</a>
+      <a class="waves-effect waves-light btn" ng-click="stopClock()"><i class="material-icons left">alarm_off</i>Pause</a>
+      <a class="waves-effect waves-light btn" ng-click="resetClock()"><i class="material-icons left">alarm_off</i>Reset</a>
+    </div>
+  </div>
+  <div class="row">
+      <div class="s12 center-align">
+          <ul class="collection with-header" ng-show="taskCompleted.length>0">
+              <li class="collection-header"><h4>Previous Tasks</h4></li>
+              <li class="collection-item" ng-repeat="task in taskCompleted">{{task}}</li>
+          </ul>
+      </div>
+    </div>
+ 
+
+</div>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.js'></script>
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+<script  src="js/pomodoro-controller.js"></script>
+
+</body>
+
+</html>
